@@ -98,216 +98,245 @@ class _MasterSongPageState extends State<MasterSongPage> {
         children: [
           Expanded(
             flex: 5,
-            child: PagingListener(
-              controller: _pagingController,
-              builder: (context, state, fetchNextPage){
-                return PagedListView<int, SongListResponseData>(
-                  state: state,
-                  fetchNextPage: fetchNextPage,
-                  builderDelegate: PagedChildBuilderDelegate(
-                    itemBuilder: (context, item, index){ 
-                      String singer = item.detail?.singSatu ?? 'UNKNOWN';
-                      if (isNotNullOrEmpty(item.detail?.singDua)) {
-                        singer = '$singer, ${item.detail?.singDua}';
-                      }
-
-                      if (isNotNullOrEmpty(item.detail?.singTiga)) {
-                        singer = '$singer, ${item.detail?.singTiga}';
-                      }
-
-                      if (isNotNullOrEmpty(item.detail?.singEmpat)) {
-                        singer = '$singer, ${item.detail?.singEmpat}';
-                      }
-
-                      if (isNotNullOrEmpty(item.detail?.singLima)) {
-                        singer = '$singer, ${item.detail?.singLima}';
-                      }
-
-                      return InkWell(
-                        onTap: () => _playVideo(item),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                          color: choosedSong?.fileName == item.name && choosedSong?.fileExt == item.extention? Colors.amber :Colors.white,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item.detail?.song ?? '',
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                maxLines: 2,
-                              ),
-                              Text(
-                                singer,
-                                style: const TextStyle(fontSize: 14),
-                                maxLines: 2,
-                              ),
-                              Text(
-                                '${item.name}.${item.extention}',
-                                style: const TextStyle(fontSize: 14),
-                                maxLines: 2,
-                              ),
-                              Container(
-                                width: double.infinity,
-                                height: 0.3,
-                                color: Colors.black,
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-                  ),
-                );
-              }
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: _videoPlayerController != null && choosedSong != null?
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Container(
+              color: Colors.white,
+              child: Column(
                 children: [
-                  VlcPlayer(
-                    controller: _videoPlayerController!,
-                    aspectRatio: 16 / 9,
-                    placeholder: const Center(child: CircularProgressIndicator()),
-                  ),
-                  const SizedBox(height: 8),
+                  // Row(
+                  //   mainAxisSize: MainAxisSize.max,
+                  //   children: [
+                  //     TextField(
+                        
+                  //     ),
+                  //     IconButton(
+                  //       onPressed: (){
+
+                  //       }, 
+                  //       icon: Icon(Icons.format_align_left_sharp)
+                  //     )
+                  //   ],
+                  // ),
                   Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment:MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text(formatDuration(_currentPosition)),
-                                SliderTheme(
-                                  data: SliderThemeData(overlayShape:SliderComponentShape.noOverlay),
-                                  child: Slider(                                  
-                                    activeColor: Colors.blue,
-                                    value: _currentPosition.inMilliseconds.toDouble(),
-                                    max: _totalDuration.inMilliseconds.toDouble().clamp(0, double.infinity),
-                                    onChanged: (value) {
-                                      _videoPlayerController?.setTime(value.toInt());
-                                    },
+                    child: PagingListener(
+                      controller: _pagingController,
+                      builder: (context, state, fetchNextPage){
+                        return PagedListView<int, SongListResponseData>(
+                          state: state,
+                          fetchNextPage: fetchNextPage,
+                          builderDelegate: PagedChildBuilderDelegate(
+                            itemBuilder: (context, item, index){ 
+                              String singer = item.detail?.singSatu ?? 'UNKNOWN';
+                              if (isNotNullOrEmpty(item.detail?.singDua)) {
+                                singer = '$singer, ${item.detail?.singDua}';
+                              }
+                    
+                              if (isNotNullOrEmpty(item.detail?.singTiga)) {
+                                singer = '$singer, ${item.detail?.singTiga}';
+                              }
+                    
+                              if (isNotNullOrEmpty(item.detail?.singEmpat)) {
+                                singer = '$singer, ${item.detail?.singEmpat}';
+                              }
+                    
+                              if (isNotNullOrEmpty(item.detail?.singLima)) {
+                                singer = '$singer, ${item.detail?.singLima}';
+                              }
+                    
+                              return InkWell(
+                                onTap: () => _playVideo(item),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                  color: choosedSong?.fileName == item.name && choosedSong?.fileExt == item.extention? Colors.lightBlueAccent :Colors.white,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.detail?.song ?? '',
+                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                        maxLines: 2,
+                                      ),
+                                      Text(
+                                        singer,
+                                        style: const TextStyle(fontSize: 14),
+                                        maxLines: 2,
+                                      ),
+                                      Text(
+                                        '${item.name}.${item.extention}',
+                                        style: const TextStyle(fontSize: 14),
+                                        maxLines: 2,
+                                      ),
+                                      Container(
+                                        width: double.infinity,
+                                        height: 0.3,
+                                        color: Colors.black,
+                                      )
+                                    ],
                                   ),
                                 ),
-                              Text(formatDuration(_totalDuration)),
-                            ],
+                              );
+                            }
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.replay_10),
-                                onPressed: () async {
-                                  final newPosition = _currentPosition - const Duration(seconds: 10);
-                                  await _videoPlayerController?.setTime(newPosition.inMilliseconds);
-                                },
-                              ),
-                              IconButton(
-                                onPressed: () async {
-                                  if (_videoPlayerController == null || !_videoPlayerController!.value.isInitialized) return;
-                                  final isPlaying = await _videoPlayerController!.isPlaying();
-                                  if (isPlaying??false) {
-                                    await _videoPlayerController!.pause();
-                                  } else {
-                                    await _videoPlayerController!.play();
-                                  }
-
-                                  setState(() {});
-                                },
-                                icon: FutureBuilder<bool?>(
-                                  future: _videoPlayerController != null && _videoPlayerController!.value.isInitialized? _videoPlayerController!.isPlaying(): Future.value(false),
-                                  builder: (context, snapshot) {
-                                    final isPlaying = snapshot.data ?? false;
-                                    return Icon(isPlaying ? Icons.pause : Icons.play_arrow);
-                                  },
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.forward_10),
-                                onPressed: () async {
-                                  final newPosition = _currentPosition + const Duration(seconds: 10);
-                                  await _videoPlayerController?.setTime(newPosition.inMilliseconds);
-                                },
-                              ),
-                             (_videoPlayerController != null &&
-                                          _videoPlayerController!
-                                              .value.isInitialized)
-                                      ? FutureBuilder<Map<int, String>>(
-                                          future: _videoPlayerController!.getAudioTracks(),
-                                          builder: (context, snapshot) {
-                                            if (!snapshot.hasData ||
-                                                snapshot.data!.isEmpty) {
-                                              return const SizedBox();
-                                            }
-
-                                            final tracks = snapshot.data!;
-                                            int? selectedTrack;
-
-                                            return Column(
-                                              children: [
-                                                DropdownButton<int>(
-                                                  hint: Text('Audio track'),
-                                                  value: selectedTrack,
-                                                  items:
-                                                      tracks.entries.map((entry) {
-                                                    return DropdownMenuItem<int>(
-                                                      value: entry.key,
-                                                      child: Text(entry.value),
-                                                    );
-                                                  }).toList(),
-                                                  onChanged: (int? value) {
-                                                    if (value != null) {
-                                                      _videoPlayerController
-                                                          ?.setAudioTrack(value);
-                                                      setState(() {
-                                                        selectedTrack = value;
-                                                      });
-                                                    }
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        )
-                                      : const SizedBox(),
-                            ],
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  choosedSong!.song,
-                                  style: const TextStyle( fontSize: 16, fontWeight: FontWeight.w500),
-                                ),
-                                Text(
-                                  choosedSong!.singer,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                Text(
-                                  '${choosedSong!.fileName}.${choosedSong!.fileExt}',
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                        );
+                      }
                     ),
                   ),
                 ],
-              )
-            :
-              const Padding(
-                padding: EdgeInsets.all(20),
-                child: Text("Pilih lagu untuk diputar"),
               ),
+            ),
+          ),
+          Container(
+            width: 0.3,
+            height: double.infinity,
+            color: Colors.black,
+          ),
+          Expanded(
+            flex: 3,
+            child: Container(
+              color: Colors.white,
+              height: double.infinity,
+              child: _videoPlayerController != null && choosedSong != null?
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    VlcPlayer(
+                      controller: _videoPlayerController!,
+                      aspectRatio: 16 / 9,
+                      placeholder: const Center(child: CircularProgressIndicator()),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment:MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(formatDuration(_currentPosition)),
+                                  SliderTheme(
+                                    data: SliderThemeData(overlayShape:SliderComponentShape.noOverlay),
+                                    child: Slider(                                  
+                                      activeColor: Colors.blue,
+                                      value: _currentPosition.inMilliseconds.toDouble(),
+                                      max: _totalDuration.inMilliseconds.toDouble().clamp(0, double.infinity),
+                                      onChanged: (value) {
+                                        _videoPlayerController?.setTime(value.toInt());
+                                      },
+                                    ),
+                                  ),
+                                Text(formatDuration(_totalDuration)),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.replay_10),
+                                  onPressed: () async {
+                                    final newPosition = _currentPosition - const Duration(seconds: 10);
+                                    await _videoPlayerController?.setTime(newPosition.inMilliseconds);
+                                  },
+                                ),
+                                IconButton(
+                                  onPressed: () async {
+                                    if (_videoPlayerController == null || !_videoPlayerController!.value.isInitialized) return;
+                                    final isPlaying = await _videoPlayerController!.isPlaying();
+                                    if (isPlaying??false) {
+                                      await _videoPlayerController!.pause();
+                                    } else {
+                                      await _videoPlayerController!.play();
+                                    }
+              
+                                    setState(() {});
+                                  },
+                                  icon: FutureBuilder<bool?>(
+                                    future: _videoPlayerController != null && _videoPlayerController!.value.isInitialized? _videoPlayerController!.isPlaying(): Future.value(false),
+                                    builder: (context, snapshot) {
+                                      final isPlaying = snapshot.data ?? false;
+                                      return Icon(isPlaying ? Icons.pause : Icons.play_arrow);
+                                    },
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.forward_10),
+                                  onPressed: () async {
+                                    final newPosition = _currentPosition + const Duration(seconds: 10);
+                                    await _videoPlayerController?.setTime(newPosition.inMilliseconds);
+                                  },
+                                ),
+                               (_videoPlayerController != null &&
+                                            _videoPlayerController!
+                                                .value.isInitialized)
+                                        ? FutureBuilder<Map<int, String>>(
+                                            future: _videoPlayerController!.getAudioTracks(),
+                                            builder: (context, snapshot) {
+                                              if (!snapshot.hasData ||
+                                                  snapshot.data!.isEmpty) {
+                                                return const SizedBox();
+                                              }
+              
+                                              final tracks = snapshot.data!;
+                                              int? selectedTrack;
+              
+                                              return Column(
+                                                children: [
+                                                  DropdownButton<int>(
+                                                    hint: Text('Audio track'),
+                                                    value: selectedTrack,
+                                                    items:
+                                                        tracks.entries.map((entry) {
+                                                      return DropdownMenuItem<int>(
+                                                        value: entry.key,
+                                                        child: Text(entry.value),
+                                                      );
+                                                    }).toList(),
+                                                    onChanged: (int? value) {
+                                                      if (value != null) {
+                                                        _videoPlayerController
+                                                            ?.setAudioTrack(value);
+                                                        setState(() {
+                                                          selectedTrack = value;
+                                                        });
+                                                      }
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          )
+                                        : const SizedBox(),
+                              ],
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    choosedSong!.song,
+                                    style: const TextStyle( fontSize: 16, fontWeight: FontWeight.w500),
+                                  ),
+                                  Text(
+                                    choosedSong!.singer,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                  Text(
+                                    '${choosedSong!.fileName}.${choosedSong!.fileExt}',
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              :
+                Center(child: Text("No Song Seleced!", textAlign: TextAlign.center, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),)),
+            ),
           )
         ],
       ),
