@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:master_song/page/player/test_player.dart';
 import 'package:master_song/page/song/song_list_page.dart';
+import 'package:master_song/provider/song_list_provider.dart';
 import 'package:master_song/provider/video_player_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -16,6 +17,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => VideoPlayerProvider()),
+        ChangeNotifierProvider(create: (_) => SongListProvider()),
       ],
       child: const MyApp(),
     ),
