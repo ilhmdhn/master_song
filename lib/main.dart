@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:master_song/page/player/test_player.dart';
-import 'package:master_song/page/song/song_list_page.dart';
+import 'package:master_song/page/song/master_song_page.dart';
 import 'package:master_song/provider/song_list_provider.dart';
 import 'package:master_song/provider/video_player_provider.dart';
 import 'package:provider/provider.dart';
@@ -36,10 +36,10 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        initialRoute: SongListPage.routeName,
+        initialRoute: MasterSongPage.routeName,
         routes: {
           MediaPlayer.routeName: (context) => const MediaPlayer(),
-          SongListPage.routeName: (context) => const SongListPage()
+          MasterSongPage.routeName: (context) => const MasterSongPage()
         },
       ),
     );
