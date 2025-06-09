@@ -18,22 +18,63 @@ class MasterSongPage extends StatefulWidget {
 }
 
 class _MasterSongPageState extends State<MasterSongPage> {
-  final PagingController<int, SongListResponseData> _pagingController =
-      PagingController(
-    getNextPageKey: (state) => (state.keys?.last ?? 0) + 1,
-    fetchPage: (pageKey) => NetworkRequest.getSong(pageKey),
-  );
+  final PagingController<int, SongListResponseData> _pagingController = PagingController(firstPageKey: 1);
 
   VlcPlayerController? _videoPlayerController;
   String? _currentVideoUrl;
   ChoosedSong? choosedSong;
+  final TextEditingController _searchController = TextEditingController();
 
+  void _fetchList(int pageKey)async{
+    try{
+        
+        final response = await NetworkRequest.getSong(pageKey);
+        
+        if(response.state && isNotNullOrEmptyList(response.data)){
+          _pagingController.appendPage(response.data!, pageKey+1);
+        }else if(!response.state){
+          _pagingController.error(response.message);
+        }else{
+          _pagingController.appendLastPage(response.data!);
+        }
+
+    }catch(e){
+      _pagingController.error(e);
+    }
+  }
+
+  void _fetchSearch(String search)async{
+    final response = await NetworkRequest.searchSong(search);    
+    if(response.state && isNotNullOrEmptyList(response.data)){
+      _pagingController.appendLastPage(response.data!);
+    }
+  }
+  
   @override
   void dispose() {
     _pagingController.dispose();
     _videoPlayerController?.dispose();
     _positionTimer?.cancel();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  void startPaging(){
+    _pagingController.addPageRequestListener((pageKey){
+      _fetchList(pageKey);
+    });
+    _fetchList(1);
+  }
+
+  void refreshData() {
+    _pagingController.itemList?.clear();
+    _pagingController.refresh();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    startPaging();
   }
 
   Future<void> _playVideo(SongListResponseData item) async {
@@ -102,28 +143,27 @@ class _MasterSongPageState extends State<MasterSongPage> {
               color: Colors.white,
               child: Column(
                 children: [
-                  // Row(
-                  //   mainAxisSize: MainAxisSize.max,
-                  //   children: [
-                  //     TextField(
-                        
-                  //     ),
-                  //     IconButton(
-                  //       onPressed: (){
-
-                  //       }, 
-                  //       icon: Icon(Icons.format_align_left_sharp)
-                  //     )
-                  //   ],
-                  // ),
+                  Container(
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) {
+                        if(isNullOrEmpty(value)){
+                          refreshData();
+                        }else{
+                          _pagingController.itemList?.clear();
+                          _fetchSearch(value);
+                        }
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Cari lagu',
+                        icon: Icon(Icons.search)
+                      ),
+                    ),
+                  ),
                   Expanded(
-                    child: PagingListener(
-                      controller: _pagingController,
-                      builder: (context, state, fetchNextPage){
-                        return PagedListView<int, SongListResponseData>(
-                          state: state,
-                          fetchNextPage: fetchNextPage,
-                          builderDelegate: PagedChildBuilderDelegate(
+                    child: PagedListView<int, SongListResponseData>(
+                      pagingController: _pagingController,
+                      builderDelegate: PagedChildBuilderDelegate(
                             itemBuilder: (context, item, index){ 
                               String singer = item.detail?.singSatu ?? 'UNKNOWN';
                               if (isNotNullOrEmpty(item.detail?.singDua)) {
@@ -176,9 +216,7 @@ class _MasterSongPageState extends State<MasterSongPage> {
                               );
                             }
                           ),
-                        );
-                      }
-                    ),
+                    )  
                   ),
                 ],
               ),
